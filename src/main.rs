@@ -2,14 +2,17 @@ extern crate rustbox;
 
 use std::default::Default;
 
-use rustbox::{Key, RustBox};
+use rustbox::{InitOptions, Key, RustBox};
 
 mod lib;
 
 use lib::text_box::TextBox;
 
 fn main() {
-    let rustbox = match RustBox::init(Default::default()) {
+    let rustbox = match RustBox::init(InitOptions {
+        buffer_stderr: true,
+        ..Default::default()
+    }) {
         Result::Ok(v) => v,
         Result::Err(e) => panic!("{}", e),
     };
