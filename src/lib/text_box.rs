@@ -103,11 +103,38 @@ impl TextBox {
     self.cursor_x = clamp(self.cursor_x as i32, 0, self.max_x() as i32) as isize;
   }
 
+  fn to_vec(&self) -> Vec<String> {
+    self
+      .text
+      .split('\n')
+      .map(|x| x.to_string())
+      .collect::<Vec<String>>()
+  }
+
+  fn to_vec_chars(&self) -> Vec<char> {
+    self.text.chars().collect()
+  }
+
+  fn get_pos(&self) -> isize {
+    let mut pos = 0;
+
+    for string in self.to_vec().iter().take(self.cursor_y as usize) {
+      pos += string.len()
+    }
+
+    pos as isize + self.cursor_x
+  }
+
+  fn len_of_line(&self, y: isize) -> isize {
+    self.to_vec()[y as usize].len() as isize
+  }
+
   pub fn key_event(&mut self, pressed: Key) {
     match pressed {
       Key::Backspace => {
-        self.text.pop();
-        // self.update_y();
+        if self.to_vec_chars().get(self.cursor_x as usize).is_some() {
+          self.text.remove(self.get_pos() as usize);
+        }
       }
       Key::Enter => {
         self.text.push('\n');
@@ -124,7 +151,7 @@ impl TextBox {
       Key::Right => {
         self.cursor_x = clamp((self.cursor_x + 1) as i32, 0, self.max_x() as i32) as isize
       }
-      Key::Char(c) => self.text.push(c),
+      Key::Char(c) => self.text.insert(self.get_pos() as usize, c),
       _ => {}
     };
   }
