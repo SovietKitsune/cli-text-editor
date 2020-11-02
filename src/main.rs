@@ -4,7 +4,9 @@ use std::default::Default;
 
 use rustbox::{Key, RustBox};
 
-mod types;
+mod lib;
+
+use lib::text_box::TextBox;
 
 fn main() {
     let rustbox = match RustBox::init(Default::default()) {
@@ -12,7 +14,7 @@ fn main() {
         Result::Err(e) => panic!("{}", e),
     };
 
-    let mut text_box = types::TextBox::new(Some("hello".to_string()));
+    let mut text_box = TextBox::new(Some("hello".to_string()));
 
     rustbox.present();
     loop {
