@@ -135,6 +135,8 @@ impl TextBox {
         if self.to_vec_chars().get(self.cursor_x as usize).is_some() {
           self.text.remove(self.get_pos() as usize);
         }
+
+        self.cursor_x = clamp((self.cursor_x - 1) as i32, 0, self.max_x() as i32) as isize
       }
       Key::Enter => {
         self.text.push('\n');
@@ -151,7 +153,11 @@ impl TextBox {
       Key::Right => {
         self.cursor_x = clamp((self.cursor_x + 1) as i32, 0, self.max_x() as i32) as isize
       }
-      Key::Char(c) => self.text.insert(self.get_pos() as usize, c),
+      Key::Char(c) => {
+        self.text.insert(self.get_pos() as usize, c);
+
+        self.cursor_x += 1;
+      }
       _ => {}
     };
   }
