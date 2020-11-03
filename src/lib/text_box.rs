@@ -14,7 +14,10 @@ fn pad(text: String, len: usize, align: Align) -> String {
     }
 }
 
-fn clamp(n: i32, min: i32, max: i32) -> i32 {
+fn clamp<T>(n: T, min: T, max: T) -> T
+where
+    T: PartialOrd<T>,
+{
     if n < min {
         min
     } else if n > max {
@@ -95,11 +98,11 @@ impl TextBox {
     }
 
     fn update_y(&mut self) {
-        self.cursor_y = clamp(self.cursor_y as i32, 0, self.max_y() as i32) as isize;
+        self.cursor_y = clamp(self.cursor_y, 0, self.max_y() as isize);
     }
 
     fn update_x(&mut self) {
-        self.cursor_x = clamp(self.cursor_x as i32, 0, self.max_x() as i32) as isize;
+        self.cursor_x = clamp(self.cursor_x, 0, self.max_x() as isize);
     }
 
     fn to_vec(&self) -> Vec<String> {
@@ -133,38 +136,30 @@ impl TextBox {
                 if self
                     .to_vec_chars()
                     .get(clamp(
-                        self.get_pos() as i32 - 1,
+                        self.get_pos() as usize - 1,
                         0,
-                        self.to_vec_chars().len() as i32,
-                    ) as usize)
+                        self.to_vec_chars().len(),
+                    ))
                     .is_some()
                 {
                     self.text.remove(clamp(
-                        self.get_pos() as i32 - 1,
+                        self.get_pos() as usize - 1,
                         0,
-                        self.to_vec_chars().len() as i32,
-                    ) as usize);
+                        self.to_vec_chars().len(),
+                    ));
                 }
 
-                self.cursor_x = clamp((self.cursor_x - 1) as i32, 0, self.max_x() as i32) as isize
+                self.cursor_x = clamp(self.cursor_x - 1, 0, self.max_x() as isize)
             }
             Key::Enter => {
                 self.text.push('\n');
                 self.cursor_y += 1;
             }
             Key::Tab => self.text.push('\t'),
-            Key::Down => {
-                self.cursor_y = clamp((self.cursor_y + 1) as i32, 0, self.max_y() as i32) as isize
-            }
-            Key::Up => {
-                self.cursor_y = clamp((self.cursor_y - 1) as i32, 0, self.max_y() as i32) as isize
-            }
-            Key::Left => {
-                self.cursor_x = clamp((self.cursor_x - 1) as i32, 0, self.max_x() as i32) as isize
-            }
-            Key::Right => {
-                self.cursor_x = clamp((self.cursor_x + 1) as i32, 0, self.max_x() as i32) as isize
-            }
+            Key::Down => self.cursor_y = clamp(self.cursor_y + 1, 0, self.max_y() as isize),
+            Key::Up => self.cursor_y = clamp(self.cursor_y - 1, 0, self.max_y() as isize),
+            Key::Left => self.cursor_x = clamp(self.cursor_x - 1, 0, self.max_x() as isize),
+            Key::Right => self.cursor_x = clamp(self.cursor_x + 1, 0, self.max_x() as isize),
             Key::Char(c) => {
                 self.text.insert(self.get_pos() as usize, c);
 
