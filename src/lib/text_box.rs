@@ -135,18 +135,14 @@ impl TextBox {
             Key::Backspace => {
                 if self
                     .to_vec_chars()
-                    .get(clamp(
-                        self.get_pos() as usize - 1,
-                        0,
-                        self.to_vec_chars().len(),
-                    ))
+                    .get(clamp(self.get_pos() - 1, 0, self.to_vec_chars().len() as isize) as usize)
                     .is_some()
                 {
                     self.text.remove(clamp(
-                        self.get_pos() as usize - 1,
+                        self.get_pos() - 1,
                         0,
-                        self.to_vec_chars().len(),
-                    ));
+                        self.to_vec_chars().len() as isize,
+                    ) as usize);
                 }
 
                 self.cursor_x = clamp(self.cursor_x - 1, 0, self.max_x() as isize)
