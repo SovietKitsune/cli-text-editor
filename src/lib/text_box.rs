@@ -28,17 +28,28 @@ where
 }
 
 pub struct TextBox {
-    text: String,
+    /// The text stored within the textbox
+    pub text: String,
+    /// The x position to draw the box
+    pub x: usize,
+    /// The y position to draw the box
+    pub y: usize,
+    /// The amount of lines to render
+    pub lines: usize,
+    /// To automatically update the max lines
+    pub auto_update: bool,
+    /// The position of the cursor in the x direction
     cursor_x: isize,
+    /// The position of the cursor in the y direction
     cursor_y: isize,
-    x: usize,
-    y: usize,
 }
 
 impl TextBox {
-    pub fn new(text: Option<String>) -> TextBox {
+    pub fn new(text: Option<String>, lines: Option<usize>, auto_update: Option<bool>) -> TextBox {
         TextBox {
             text: text.unwrap_or("".to_string()),
+            lines: lines.unwrap_or(5),
+            auto_update: auto_update.unwrap_or(false),
             cursor_x: 0,
             cursor_y: 0,
             x: 0,
@@ -49,18 +60,26 @@ impl TextBox {
     pub fn render(&mut self, rustbox: &rustbox::RustBox) {
         self.update_pos();
 
+        if self.auto_update {
+            self.update_lines(rustbox);
+        }
+
         let lines = self.text.split('\n').count();
         let width = lines.to_string().len();
 
         rustbox.clear();
 
-        rustbox.set_cursor(self.cursor_x + width as isize + 3, self.cursor_y);
+        rustbox.set_cursor(
+            self.cursor_x + width as isize + 3,
+            clamp(self.cursor_y, 0, self.lines as isize),
+        );
 
-        let to_iter = &self
-            .text
-            .split('\n')
-            .map(|x| x.to_string())
-            .collect::<Vec<String>>();
+        let vec = self.to_vec();
+
+        let starting = clamp(self.cursor_y - self.lines as isize, 0, vec.len() as isize) as usize;
+        let ending = clamp(self.cursor_y + self.lines as isize, 0, vec.len() as isize) as usize;
+
+        let to_iter = &vec[starting..ending];
 
         for (i, part) in to_iter.iter().enumerate() {
             rustbox.print(
@@ -71,7 +90,7 @@ impl TextBox {
                 Color::Default,
                 &format!(
                     "{} | {}",
-                    pad((i + 1).to_string(), width, Align::Right),
+                    pad((i + 1 + starting).to_string(), width, Align::Right),
                     part
                 ),
             );
@@ -83,6 +102,10 @@ impl TextBox {
     pub fn update_pos(&mut self) {
         self.update_x();
         self.update_y();
+    }
+
+    pub fn update_lines(&mut self, rustbox: &rustbox::RustBox) {
+        self.lines = rustbox.height();
     }
 
     pub fn max_y(&self) -> usize {
