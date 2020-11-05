@@ -44,6 +44,8 @@ pub struct TextBox {
     cursor_y: isize,
 }
 
+// TODO; Split into traits
+
 impl TextBox {
     pub fn new(text: Option<String>, lines: Option<usize>, auto_update: Option<bool>) -> TextBox {
         TextBox {
@@ -171,10 +173,15 @@ impl TextBox {
                 self.cursor_x = clamp(self.cursor_x - 1, 0, self.max_x() as isize)
             }
             Key::Enter => {
-                self.text.push('\n');
+                self.text.insert(self.get_pos() as usize, '\n');
+
                 self.cursor_y += 1;
             }
-            Key::Tab => self.text.push('\t'),
+            Key::Tab => {
+                self.text.insert(self.get_pos() as usize, '\t');
+
+                self.cursor_x += 1;
+            }
             Key::Down => self.cursor_y = clamp(self.cursor_y + 1, 0, self.max_y() as isize),
             Key::Up => self.cursor_y = clamp(self.cursor_y - 1, 0, self.max_y() as isize),
             Key::Left => self.cursor_x = clamp(self.cursor_x - 1, 0, self.max_x() as isize),
