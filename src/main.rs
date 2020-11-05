@@ -17,7 +17,18 @@ fn main() {
         Result::Err(e) => panic!("{}", e),
     };
 
-    let mut text_box = TextBox::new(Some("hello".to_string()), Some(5), Some(false));
+    let mut text_box = TextBox::new(
+        Some(
+            "
+        Boxes are cool, yee!
+        [][][][][][][][][][]
+        Boxes are very cool!
+        "
+            .to_string(),
+        ),
+        Some(rustbox.height()),
+        Some(true),
+    );
 
     rustbox.present();
     loop {

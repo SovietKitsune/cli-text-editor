@@ -83,6 +83,8 @@ impl TextBox {
 
         let to_iter = &vec[starting..ending];
 
+        // TODO; have line count fixed as currently when going up, more lines are displayed then expected
+
         for (i, part) in to_iter.iter().enumerate() {
             rustbox.print(
                 self.x + width + 1,
@@ -104,7 +106,7 @@ impl TextBox {
                 Color::White,
                 Color::Default,
                 &format!(
-                    "{}",
+                    "{} │ ",
                     pad((i + 1 + starting).to_string(), width, Align::Right)
                 ),
             );
@@ -194,11 +196,18 @@ impl TextBox {
 
                 self.cursor_x += 1;
             }
+            Key::End => {
+                self.cursor_x = self.max_x() as isize;
+            }
+            Key::Home => {
+                self.cursor_x = 0;
+            }
             Key::Down => self.cursor_y = clamp(self.cursor_y + 1, 0, self.max_y() as isize),
             Key::Up => self.cursor_y = clamp(self.cursor_y - 1, 0, self.max_y() as isize),
             Key::Left => self.cursor_x = clamp(self.cursor_x - 1, 0, self.max_x() as isize),
             Key::Right => self.cursor_x = clamp(self.cursor_x + 1, 0, self.max_x() as isize),
             Key::Char(c) => {
+                // BUG; Character boundaries, trying to place a character next to something like `┴` panics
                 self.text.insert(self.get_pos() as usize, c);
 
                 self.cursor_x += 1;
