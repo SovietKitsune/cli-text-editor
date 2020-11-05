@@ -72,7 +72,7 @@ impl TextBox {
         rustbox.clear();
 
         rustbox.set_cursor(
-            self.cursor_x + width as isize + 3,
+            self.cursor_x + width as isize + 2,
             clamp(self.cursor_y, 0, self.lines as isize),
         );
 
@@ -85,15 +85,27 @@ impl TextBox {
 
         for (i, part) in to_iter.iter().enumerate() {
             rustbox.print(
-                self.x,
+                self.x + width + 1,
                 self.y + i,
                 rustbox::RB_NORMAL,
                 Color::White,
                 Color::Default,
+                &format!(" {}", part),
+            );
+        }
+
+        // Render line numbers in a different loop for different bg
+
+        for (i, _) in to_iter.iter().enumerate() {
+            rustbox.print(
+                self.x,
+                self.y + i,
+                rustbox::RB_BOLD,
+                Color::White,
+                Color::Default,
                 &format!(
-                    "{} | {}",
-                    pad((i + 1 + starting).to_string(), width, Align::Right),
-                    part
+                    "{}",
+                    pad((i + 1 + starting).to_string(), width, Align::Right)
                 ),
             );
         }
